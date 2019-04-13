@@ -17,7 +17,7 @@ let elves = [{
   name: allElves[0],
   head: '(·_·)',
   danceSpeed: 200,
-  stance: [0, 0, 1, 1],
+  stance: [0, 0, 0, 0],
   favouriteGems: [allGems[0]],
   dislikedGems: [allGems[1]]
 },
