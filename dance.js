@@ -181,17 +181,22 @@ function displayGemToElf(elf, gem) {
         .then(rightHandDown);
     },
     'Кварц'     : function (elf) {
-      return bothLegIn(elf)
-        .then(bothLegOut);
+      return Promise.all([leftLegIn(elf), rightLegIn(elf)]).then((elves) => {
+        let rightElf;
+        elves.forEach(function(elf) {
+          if (elf.stance[2] == 1 && elf.stance[3] == 1) rightElf = elf;
+        });
+        return rightElf;
+      }); //add last movement
     },
     'Альмандин' : function (elf) {
-      return leftSplit(elf);
+      return leftSplit(elf); //!
     },
     'Родолит'   : function (elf) {
-      return rightSplit(elf);
+      return rightSplit(elf); //!
     },
     'Пироп'     : function (elf) {
-      return allInUp(elf).then(allOutDown);
+      return allInUp(elf).then(allOutDown); //!
     },
     'Спессартин': function (elf) {
       return leftLegOut(elf)
