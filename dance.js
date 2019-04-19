@@ -81,84 +81,6 @@ function rightLegIn(elf) {
   });
 }
 
-function bothHandUp(elf) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      elf.stance[0] = 1;
-      elf.stance[1] = 1;
-      resolve(elf);
-    }, elf.danceSpeed);
-  });
-}
-
-function bothHandDown(elf) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      elf.stance[0] = 0;
-      elf.stance[1] = 0;
-      resolve(elf);
-    }, elf.danceSpeed);
-  });
-}
-
-function bothLegOut(elf) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      elf.stance[2] = 1;
-      elf.stance[3] = 1;
-      resolve(elf);
-    }, elf.danceSpeed);
-  });
-}
-
-function bothLegIn(elf) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      elf.stance[2] = 0;
-      elf.stance[3] = 0;
-      resolve(elf);
-    }, elf.danceSpeed);
-  });
-}
-
-function leftSplit(elf) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      elf.stance[0] = 1;
-      elf.stance[2] = 1;
-      resolve(elf);
-    }, elf.danceSpeed);
-  });
-}
-
-function rightSplit(elf) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      elf.stance[1] = 1;
-      elf.stance[3] = 1;
-      resolve(elf);
-    }, elf.danceSpeed);
-  });
-}
-
-function allInUp(elf) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      elf.stance = [1, 1, 1, 1];
-      resolve(elf);
-    }, elf.danceSpeed);
-  });
-}
-
-function allOutDown(elf) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      elf.stance = [0, 0, 0, 0];
-      resolve(elf);
-    }, elf.danceSpeed);
-  });
-}
-
 function randomNumber (min, max) {
   return Math.floor(Math.random() * (max + 1 - min) + min);
 }
@@ -167,12 +89,34 @@ function randomNumber (min, max) {
 // сейчас демонстрируется всем эльфам. Здесь нужно дать команду эльфу выполнить
 // какую-то фигуру или команду и вернуть Promise
 function displayGemToElf(elf, gem) {  
+  //Эта функция определяет какой из эльфов соответствует ожидаемому состоянию
+  function getRightElf (elves, expectStance) {
+    let rightElf;
+    elves.forEach((itElf) => {
+      if (itElf.stance.toString() == expectStance.toString()) {
+        rightElf = itElf;
+      }
+    });
+    return rightElf;
+  };
+
   const gemToDance = {
     'Цитрин'    : function(elf) {
-      return bothHandUp(elf)
-        .then(bothHandDown)
-        .then(bothHandUp)
-        .then(bothHandDown);
+      return Promise.all([leftHandUp(elf), rightHandUp(elf)]).then((elves) => {
+        let rightElf = getRightElf(elves, [1, 1, elf.stance[2], elf.stance[3]]);
+
+        return Promise.all([leftHandDown(rightElf), rightHandDown(rightElf)]).then((elves) => {
+          let rightElf = getRightElf(elves, [0, 0, elf.stance[2], elf.stance[3]]);
+
+          return Promise.all([leftHandUp(rightElf), rightHandUp(rightElf)]).then((elves) => {
+            let rightElf = getRightElf(elves, [1, 1, elf.stance[2], elf.stance[3]]);
+
+            return Promise.all([leftHandDown(rightElf), rightHandDown(rightElf)]).then((elves) => {              
+              return getRightElf(elves, [0, 0, elf.stance[2], elf.stance[3]]);
+            });
+          });
+        });
+      });
     },
     'Аметист'   : function (elf) {
       return leftHandUp(elf)
@@ -182,21 +126,31 @@ function displayGemToElf(elf, gem) {
     },
     'Кварц'     : function (elf) {
       return Promise.all([leftLegIn(elf), rightLegIn(elf)]).then((elves) => {
-        let rightElf;
-        elves.forEach(function(elf) {
-          if (elf.stance[2] == 1 && elf.stance[3] == 1) rightElf = elf;
+        let rightElf = getRightElf(elves, [elf.stance[0], elf.stance[1], 1, 1]);
+
+        return Promise.all([leftLegOut(rightElf), rightLegOut(rightElf)]).then((elves) => {
+          return getRightElf(elves, [elf.stance[0], elf.stance[1], 0, 0]);
         });
-        return rightElf;
-      }); //add last movement
+      });
     },
     'Альмандин' : function (elf) {
-      return leftSplit(elf); //!
+      return Promise.all([leftHandUp(elf), leftLegOut(elf)]).then((elves) => {
+        return getRightElf(elves, [1, elf.stance[1], 0, elf.stance[3]]);
+      });
     },
     'Родолит'   : function (elf) {
-      return rightSplit(elf); //!
+      return Promise.all([rightHandUp(elf), rightLegOut(elf)]).then((elves) => {
+        return getRightElf(elves, [elf.stance[0], 1, elf.stance[2], 0]);
+      });
     },
     'Пироп'     : function (elf) {
-      return allInUp(elf).then(allOutDown); //!
+      return Promise.all([leftHandUp(elf), rightHandUp(elf), leftLegIn(elf), rightLegIn(elf)]).then((elves) => {
+        let rightElf = getRightElf(elves, [1, 1, 1, 1]);
+
+        return Promise.all([leftHandDown(elf), rightHandDown(elf), leftLegOut(rightElf), rightLegOut(rightElf)]).then((elves) => {
+          return getRightElf(elves, [0, 0, 0, 0]);
+        });
+      });
     },
     'Спессартин': function (elf) {
       return leftLegOut(elf)
@@ -210,55 +164,22 @@ function displayGemToElf(elf, gem) {
           elf.stance = [0, 0, 1, 1];
           resolve(elf);
       });
+    },
+    'Пироп'    : function (elf) {
+      return;
     }
   };
 
   function freestyle (elf) {
-    const fristales = [leftHandUp, leftHandDown, rightHandUp, rightHandDown, leftLegOut, leftLegIn, rightLegOut, rightLegIn];
-    const MAX_FREESTYLE = fristales.length - 1;
+    const freestyles = ['Цитрин', 'Аметист', 'Кварц', 'Альмандин', 'Родолит', 'Пироп', 'Спессартин'];
+    const MAX_FREESTYLE = freestyles.length - 1;
     
-    return fristales[randomNumber(0, MAX_FREESTYLE)](elf)
-      .then(fristales[randomNumber(0, MAX_FREESTYLE)])
-      .then(fristales[randomNumber(0, MAX_FREESTYLE)])
-      .then(fristales[randomNumber(0, MAX_FREESTYLE)]);
+    return gemToDance[freestyles[randomNumber(0, MAX_FREESTYLE)]](elf);
   }
 
   if (gem in gemToDance) return gemToDance[gem](elf);
   else return freestyle(elf);
-
-  // switch (gem) {
-  //   case 'Цитрин':
-  //     return bothHandUp(elf)
-  //       .then(bothHandDown)
-  //       .then(bothHandUp)
-  //       .then(bothHandDown);
-  //   case 'Аметист': 
-  //     return leftHandUp(elf)
-  //       .then(rightHandUp)
-  //       .then(leftHandDown)
-  //       .then(rightHandDown);
-  //   case 'Кварц': 
-  //     return bothLegIn(elf)
-  //       .then(bothLegOut);
-  //   case 'Альмандин': 
-  //     return leftSplit(elf);
-  //   case 'Родолит': 
-  //     return rightSplit(elf);
-  //   case 'Пироп': 
-  //     return allInUp(elf).then(allOutDown);
-  //   case 'Спессартин': 
-  //     return leftLegOut(elf)
-  //       .then(leftHandUp)
-  //       .then(rightHandUp)
-  //       .then(rightLegOut);
-  //   default: 
-  //     return leftLegOut(elf)
-  //       .then(rightLegOut)
-  //       .then(leftLegIn)
-  //       .then(rightLegIn);
-  // }
 }
-
 
 // Эта функция принимает в качестве аргумента танец всех эльфов - массив их Promis'ов,
 // и драгоценность, которая сейчас демонстрируется всем эльфам.
@@ -270,4 +191,3 @@ function continueDance(elvesPromises, gem) {
     })
   })
 }
-
