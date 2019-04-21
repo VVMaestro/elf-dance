@@ -81,6 +81,22 @@ function rightLegIn(elf) {
   });
 }
 
+function onFavouriteGem(elf) {
+  return new Promise((resolve) => {
+    elf.stance[0] = 1;
+    elf.stance[1] = 1;
+    resolve(elf);
+  });
+}
+
+function onDislikedGems(elf) {
+  return new Promise((resolve) => {
+    elf.stance[0] = 0;
+    elf.stance[1] = 0;
+    resolve(elf);
+  });
+}
+
 function randomNumber (min, max) {
   return Math.floor(Math.random() * (max + 1 - min) + min);
 }
@@ -88,7 +104,7 @@ function randomNumber (min, max) {
 // Эта функция принимает в качестве аргумента эльфа и драгоценность, которая
 // сейчас демонстрируется всем эльфам. Здесь нужно дать команду эльфу выполнить
 // какую-то фигуру или команду и вернуть Promise
-function displayGemToElf(elf, gem) {  
+function displayGemToElf(elf, gem, elvesPromises) {  
   //Эта функция определяет какой из эльфов соответствует ожидаемому состоянию
   function getRightElf (elves, expectStance) {
     let rightElf;
@@ -143,6 +159,16 @@ function displayGemToElf(elf, gem) {
         return getRightElf(elves, [elf.stance[0], 1, elf.stance[2], 0]);
       });
     },
+    'Эвклаз'    : function (elf) {
+      return Promise.all([leftHandDown(elf), rightHandDown(elf)]).then((elves) => {
+        return getRightElf(elves, [0, 0, elf.stance[2], elf.stance[3]]);
+      });
+    },
+    'Тааффеит': function (elf) {
+      return Promise.all([leftLegIn(elf), rightLegIn(elf)]).then((elves) => {
+        return getRightElf(elves, [elf.stance[0], elf.stance[1], 1, 1]);
+      });
+    },
     'Пироп'     : function (elf) {
       return Promise.all([leftHandUp(elf), rightHandUp(elf), leftLegIn(elf), rightLegIn(elf)]).then((elves) => {
         let rightElf = getRightElf(elves, [1, 1, 1, 1]);
@@ -161,12 +187,40 @@ function displayGemToElf(elf, gem) {
     //специальные драгоценности
     'Андалузит': function (elf) {
       return new Promise((resolve) => {
-          elf.stance = [0, 0, 1, 1];
-          resolve(elf);
+        elf.stance = [0, 0, 1, 1];
+        resolve(elf);
       });
     },
-    'Пироп'    : function (elf) {
-      return;
+    'Гиацинт'  : function (elf) {
+      return new Promise((resolve) => {
+        elf.stance = [1, 1, 0, 0];
+        resolve(elf);
+      });
+    },
+    'Циркон'   : function (elf) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(elf);
+        }, elf.danceSpeed);
+      });
+    },
+    'Танзанит'  : function (elf) {
+      return new Promise((resolve) => {
+        elf.danceSpeed = elf.danceSpeed * 2;
+        resolve(elf);
+      });
+    },
+    'Топаз'    : function (elf) {
+      return new Promise((resolve) => {
+        elf.danceSpeed = elf.danceSpeed / 2;
+        resolve(elf);
+      });
+    },
+    'Параиба'  : function (elf) {
+      return Promise.all(elvesPromises).then(() => {
+        return elf;
+      });
+
     }
   };
 
@@ -177,6 +231,8 @@ function displayGemToElf(elf, gem) {
     return gemToDance[freestyles[randomNumber(0, MAX_FREESTYLE)]](elf);
   }
 
+  if (elf.favouriteGems && elf.favouriteGems.includes(gem)) return onFavouriteGem(elf);
+  if (elf.dislikedGems && elf.dislikedGems.includes(gem)) return onDislikedGems(elf);
   if (gem in gemToDance) return gemToDance[gem](elf);
   else return freestyle(elf);
 }
@@ -187,7 +243,7 @@ function displayGemToElf(elf, gem) {
 function continueDance(elvesPromises, gem) {
   return elvesPromises.map((elfPromise) => {
     return elfPromise.then(elf => {
-      return displayGemToElf(elf, gem)
+      return displayGemToElf(elf, gem, elvesPromises);
     })
   })
 }

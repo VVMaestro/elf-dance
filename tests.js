@@ -272,6 +272,32 @@ describe("Эльф должен выполнять соответствующи�
 			done();
 		});
 	});
+
+	it("Эвклаз", function (done) {
+		let elf = {
+			danceSpeed: 10,
+			stance: [1, 1, 0, 0]
+		}
+		const gem = "Эвклаз";
+
+		displayGemToElf(elf, gem).then((elf) => {
+			expect(elf.stance).toEqual([0, 0, 0, 0]);
+			done();
+		});
+	});
+
+	it("Тааффеит", function (done) {
+		let elf = {
+			danceSpeed: 10,
+			stance: [1, 1, 0, 0]
+		}
+		const gem = "Тааффеит";
+
+		displayGemToElf(elf, gem).then((elf) => {
+			expect(elf.stance).toEqual([1, 1, 1, 1]);
+			done();
+		});
+	});
 });
 
 describe("Эльф должен понимать особый смысл некоторых камней", function () {
@@ -311,7 +337,7 @@ describe("Эльф должен понимать особый смысл нек�
 		jasmine.clock().install();
 		displayGemToElf(elf, gem);
 
-		jasmine.clock().tick(elf.danceSpeed + 1);
+		jasmine.clock().tick(elf.danceSpeed + 5);
 		expect(elf.stance).toEqual([0, 0, 1, 1]);
 
 		jasmine.clock().uninstall();
@@ -348,29 +374,31 @@ describe("Эльф должен понимать особый смысл нек�
 	it("Параиба - сделать паузу, пока все танцоры не исполнят все фигуры танца", function (done) {
 		let elf1 = {
 			danceSpeed: 10,
-			stance: [0, 0, 1, 1]
+			stance: [0, 0, 1, 1],
+			favouriteGems: []
 		}
 		let elf2 = {
-			danceSpeed: 20,
-			stance: [0, 0, 1, 1]
+			danceSpeed: 10,
+			stance: [0, 0, 1, 1],
+			favouriteGems: []
 		}
 		
-		const gem = 'Альмандин';
-		const gemPause = "Параиба";
+		const gem1 = 'Спессартин';//4-ре фазы
+		const gem2 = 'Родолит';//1-на фаза
+		const gemPause = "Параиба";//Пауза
 		
-		jasmine.clock().install();
-		displayGemToElf(elf1, gem)
-			.then((elf1) => displayGemToElf(elf1, gemPause))
-			.then((elf1) => displayGemToElf(elf1, gem));
-		displayGemToElf(elf2, gem)
+		displayGemToElf(elf1, gem1)
+			.then((elf1) => {
+				expect(elf1.stance).toEqual([1, 1, 0, 0]);
+				expect(elf2.stance).toEqual([0, 1, 1, 0]);
+				done();
+			})
+			.then((elf1) => {
+				return displayGemToElf(elf1, gemPause);
+			});
+		displayGemToElf(elf2, gem2)
 			.then((elf2) => displayGemToElf(elf2, gemPause))
-			.then((elf2) => displayGemToElf(elf2, gem));		
-
-		jasmine.clock().tick(elf2.danceSpeed + 1);
-		expect(elf1.stance).toEqual([1, 0, 0, 1]);
-		expect(elf2.stance).toEqual([1, 0, 0, 1]);
-
-		jasmine.clock().uninstall();
+			.then((elf2) => displayGemToElf(elf2, gem1));
 	});
 });
 
@@ -389,5 +417,37 @@ describe("Эльф должен станцевать фристайл на ка�
 		expect(elf.stance).not.toEqual([0, 0, 1, 1]);
 
 		jasmine.clock().uninstall();
+	});
+});
+
+describe("Эльф должен регировать на", function () {
+	it("Любимый камень", function (done) {
+		let elf = {
+			danceSpeed: 10,
+			stance: [0, 0, 1, 1],
+			favouriteGems : ['Алмаз']
+		}
+
+		const gem = 'Алмаз';
+
+		displayGemToElf(elf, gem).then((elf) => {
+			expect(elf.stance).toEqual([1, 1, 1, 1]);
+			done();
+		});
+	});
+
+	it("Нелюбимый камень", function (done) {
+		let elf = {
+			danceSpeed: 10,
+			stance: [1, 1, 0, 0],
+			dislikedGems: ['Алмаз']
+		}
+
+		const gem = 'Алмаз';
+
+		displayGemToElf(elf, gem).then((elf) => {
+			expect(elf.stance).toEqual([0, 0, 0, 0]);
+			done();
+		});
 	});
 });
