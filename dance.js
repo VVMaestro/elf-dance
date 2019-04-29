@@ -117,7 +117,7 @@ function displayGemToElf(elf, gem, elvesPromises) {
   };
 
   const gemToDance = {
-    'Цитрин'    : function(elf) {
+    'Цитрин'    : function(elf) {//24
       return Promise.all([leftHandUp(elf), rightHandUp(elf)]).then((elves) => {
         let rightElf = getRightElf(elves, [1, 1, elf.stance[2], elf.stance[3]]);
 
@@ -134,13 +134,13 @@ function displayGemToElf(elf, gem, elvesPromises) {
         });
       });
     },
-    'Аметист'   : function (elf) {
+    'Аметист'   : function (elf) {//23
       return leftHandUp(elf)
         .then(rightHandUp)
         .then(leftHandDown)
         .then(rightHandDown);
     },
-    'Кварц'     : function (elf) {
+    'Кварц'     : function (elf) {//22
       return Promise.all([leftLegIn(elf), rightLegIn(elf)]).then((elves) => {
         let rightElf = getRightElf(elves, [elf.stance[0], elf.stance[1], 1, 1]);
 
@@ -149,27 +149,27 @@ function displayGemToElf(elf, gem, elvesPromises) {
         });
       });
     },
-    'Альмандин' : function (elf) {
+    'Альмандин' : function (elf) {//21
       return Promise.all([leftHandUp(elf), leftLegOut(elf)]).then((elves) => {
         return getRightElf(elves, [1, elf.stance[1], 0, elf.stance[3]]);
       });
     },
-    'Родолит'   : function (elf) {
+    'Родолит'   : function (elf) {//20
       return Promise.all([rightHandUp(elf), rightLegOut(elf)]).then((elves) => {
         return getRightElf(elves, [elf.stance[0], 1, elf.stance[2], 0]);
       });
     },
-    'Эвклаз'    : function (elf) {
+    'Эвклаз'    : function (elf) {//2
       return Promise.all([leftHandDown(elf), rightHandDown(elf)]).then((elves) => {
         return getRightElf(elves, [0, 0, elf.stance[2], elf.stance[3]]);
       });
     },
-    'Тааффеит': function (elf) {
+    'Тааффеит': function (elf) {//6
       return Promise.all([leftLegIn(elf), rightLegIn(elf)]).then((elves) => {
         return getRightElf(elves, [elf.stance[0], elf.stance[1], 1, 1]);
       });
     },
-    'Пироп'     : function (elf) {
+    'Пироп'     : function (elf) {//19
       return Promise.all([leftHandUp(elf), rightHandUp(elf), leftLegIn(elf), rightLegIn(elf)]).then((elves) => {
         let rightElf = getRightElf(elves, [1, 1, 1, 1]);
 
@@ -178,45 +178,45 @@ function displayGemToElf(elf, gem, elvesPromises) {
         });
       });
     },
-    'Спессартин': function (elf) {
+    'Спессартин': function (elf) {//18
       return leftLegOut(elf)
         .then(leftHandUp)
         .then(rightHandUp)
         .then(rightLegOut);
     },
     //специальные драгоценности
-    'Андалузит': function (elf) {
+    'Андалузит': function (elf) {//40
       return new Promise((resolve) => {
         elf.stance = [0, 0, 1, 1];
         resolve(elf);
       });
     },
-    'Гиацинт'  : function (elf) {
+    'Гиацинт'  : function (elf) {//39
       return new Promise((resolve) => {
         elf.stance = [1, 1, 0, 0];
         resolve(elf);
       });
     },
-    'Циркон'   : function (elf) {
+    'Циркон'   : function (elf) {//38
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve(elf);
         }, elf.danceSpeed);
       });
     },
-    'Танзанит'  : function (elf) {
+    'Танзанит'  : function (elf) {//37
       return new Promise((resolve) => {
         elf.danceSpeed = elf.danceSpeed * 2;
         resolve(elf);
       });
     },
-    'Топаз'    : function (elf) {
+    'Топаз'    : function (elf) {//36
       return new Promise((resolve) => {
         elf.danceSpeed = elf.danceSpeed / 2;
         resolve(elf);
       });
     },
-    'Параиба'  : function (elf) {
+    'Параиба'  : function (elf) {//33
       return Promise.all(elvesPromises).then(() => {
         return elf;
       });
